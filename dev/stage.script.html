@@ -1,0 +1,73 @@
+<script>
+(function () {
+  // Xiaoya reads the SAME inert data island the generic renderer below reads.
+  // Only data.xiaoya drives her; every other key is left to the generic walk.
+  // Text is assigned via textContent only -- no markup-parsing path.
+  var node = document.getElementById('kirocrew-panel-data');
+  var stage = document.getElementById('xy-stage');
+  if (!node || !stage) return;
+  var data;
+  try { data = JSON.parse(node.textContent || '{}'); } catch (e) { data = {}; }
+  var x = data && typeof data === 'object' && !Array.isArray(data) ? data.xiaoya : null;
+  if (!x || typeof x !== 'object' || Array.isArray(x)) return;
+
+  // Same vocabulary as Mochi's ALL_MOODS, plus proud / worried.
+  var MOODS = {
+    neutral: { brow: 'normal',  eyes: 'open', mouth: 'smile', label: '平静' },
+    happy:   { brow: 'normal',  eyes: 'arc',  mouth: 'open',  blush: 1, spark: 1, label: '开心' },
+    curious: { brow: 'up',      eyes: 'wide', mouth: 'o',     label: '好奇' },
+    busy:    { brow: 'focus',   eyes: 'open', mouth: 'flat',  label: '专注' },
+    sleepy:  { brow: 'normal',  eyes: 'line', mouth: 'tiny',  z: 1, label: '犯困' },
+    scared:  { brow: 'up',      eyes: 'wide', mouth: 'o',     sweat: 1, label: '吓到' },
+    worried: { brow: 'worried', eyes: 'open', mouth: 'wavy',  sweat: 1, label: '担心' },
+    proud:   { brow: 'normal',  eyes: 'arc',  mouth: 'smirk', blush: 1, spark: 1, label: '得意' }
+  };
+  // Mochi's behaviour states minus walking/offline.
+  var STATES = { idle: '空闲', thinking: '思考中', working: '干活中', error: '出错了' };
+  // Mochi's transient moods: here they get a one-shot pop instead of a 3s reset,
+  // because a published panel is a snapshot the user may open much later.
+  var TRANSIENT = { happy: 1, curious: 1, scared: 1, proud: 1 };
+
+  var mood = MOODS.hasOwnProperty(x.mood) ? x.mood : 'neutral';
+  var state = STATES.hasOwnProperty(x.state) ? x.state : 'idle';
+  var m = MOODS[mood];
+
+  function show(id, on) {
+    var n = document.getElementById(id);
+    if (n) n.style.display = on ? '' : 'none';
+  }
+  ['normal', 'up', 'worried', 'focus'].forEach(function (b) { show('xy-brow-' + b, m.brow === b); });
+  ['open', 'wide', 'arc', 'line'].forEach(function (e) { show('xy-eyes-' + e, m.eyes === e); });
+  ['smile', 'open', 'o', 'flat', 'wavy', 'smirk', 'tiny'].forEach(function (k) { show('xy-m-' + k, m.mouth === k); });
+  show('xy-blush', !!m.blush);
+  show('xy-spark', !!m.spark);
+  show('xy-z', !!m.z);
+  show('xy-sweat', !!m.sweat || state === 'error');
+  ['thinking', 'working', 'error'].forEach(function (s) { show('xy-p-' + s, state === s); });
+
+  var line = typeof x.line === 'string' ? x.line.trim() : '';
+  if (line.length > 80) line = line.slice(0, 79) + '\u2026';
+  var bubble = document.getElementById('xy-line');
+  if (line) { bubble.textContent = line; }
+  else { bubble.textContent = '\u2026'; bubble.className += ' xy-empty'; }
+
+  var sc = document.getElementById('xy-state');
+  sc.textContent = STATES[state];
+  sc.className += ' xy-state-' + state;
+  document.getElementById('xy-mood').textContent = m.label;
+
+  stage.setAttribute('data-state', state);
+  stage.setAttribute('data-mood', mood);
+  if (TRANSIENT[mood]) stage.setAttribute('data-pop', '1');
+  stage.setAttribute('aria-label', '小雅：' + STATES[state] + '，' + m.label + (line ? '。' + line : ''));
+
+  var pause = document.getElementById('xy-pause');
+  pause.addEventListener('click', function () {
+    var still = stage.classList.toggle('xy-still');
+    pause.setAttribute('aria-pressed', still ? 'true' : 'false');
+    pause.textContent = still ? '继续动画' : '暂停动画';
+  });
+
+  stage.hidden = false;
+})();
+</script>

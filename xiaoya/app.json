@@ -1,0 +1,19 @@
+{
+  "name": "xiaoya",
+  "version": "0.1.0",
+  "displayName": "Xiaoya",
+  "description": "Gives every crew a small companion in its Crew-page webview. While the crew works, Xiaoya shows what it is doing and how it feels about it: thinking, working, worried about a red check, proud when it is done.",
+  "author": "iamwhatever",
+  "iconPath": "assets/icon.png",
+  "tags": ["companion", "crew-webview"],
+  "defaultEnabled": false,
+  "skills": [
+    "skills/xiaoya-react"
+  ],
+  "backend": {
+    "hooks": {
+      "on_startup": "hooks:on_startup",
+      "on_shutdown": "hooks:on_shutdown"
+    }
+  }
+}
