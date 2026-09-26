@@ -1,4 +1,4 @@
-"""Install the Xiaoya panel template while the app is enabled, remove it after.
+"""Install the Xiaoya panel template when the app starts. Never remove it.
 
 No core change: this uses the operator template directory the Crew webview
 already reads (``agent_panel.override_templates_dir()``). Agents cannot write
@@ -52,16 +52,6 @@ def install() -> str:
     return "installed"
 
 
-def remove() -> str:
-    dst = _target()
-    if not dst.exists():
-        return "absent"
-    if not _is_ours(dst):
-        return "kept-operator-file"
-    dst.unlink()
-    return "removed"
-
-
 def on_startup(ctx: Any) -> None:
     result = install()
     logger.info("[xiaoya] template %s", result)
@@ -72,6 +62,20 @@ def on_startup(ctx: Any) -> None:
 
 
 def on_shutdown(ctx: Any) -> None:
-    # Runs on disable AND on gateway stop. Removing on stop is harmless: the next
-    # start re-installs before any drawer can read it.
-    logger.info("[xiaoya] template %s", remove())
+    """Leave the template in place.
+
+    Kiro Crew composes a panel from its stored template id on every drawer read
+    (``agent_panel.render_record``). An id with no file raises ``unknown_template``
+    and the drawer gets a 503 ``panel_render_failed``. So deleting the file here
+    broke every panel a crew had already published with it.
+
+    This hook cannot tell a disable from a gateway stop or an uninstall: all three
+    call it with the same ``AppContext``, and App Kit has no in-process uninstall
+    hook (``setup.onUninstall`` is a sandboxed script; the sandbox seals that
+    directory read-only).
+    Keeping the file is right for all three: it is inert markup that only renders
+    data a crew chose to publish with it, and the next ``install()`` refreshes it.
+    """
+    dst = _target()
+    state = "kept" if dst.exists() and _is_ours(dst) else "not ours or absent"
+    logger.info("[xiaoya] template %s at %s", state, dst)

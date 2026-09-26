@@ -1,6 +1,6 @@
 ---
 name: xiaoya-react
-description: Show Xiaoya's reaction in your Crew-page webview while you work. Load when you are a crew member doing multi-step work and the Xiaoya app is enabled.
+description: Show Xiaoya's reaction in your Crew-page webview while you work. Use when the Xiaoya app is enabled and you are doing multi-step work. Reaches the default kirocrew agent; a custom agent template sees it only if it maps it with a skill:// resource.
 ---
 
 # Xiaoya reacts to your work
