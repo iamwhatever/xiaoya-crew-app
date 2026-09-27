@@ -92,7 +92,7 @@ skill `xiaoya-react` 的要点：
 | 阶段 | 做什么 | 要改 core 吗 | 见效 |
 |---|---|---|---|
 | P0 原型 | 手写 `~/.kiro/crew/panel-templates/xiaoya.html`，给一个 crew 的 briefing 加发布规则 | 否 | 1 天 |
-| P1 做成 app | app 的 `on_startup` 钩子把模板放进 `panel-templates/`，`on_shutdown` 保留它（已发布的面板要靠它继续渲染）；app 带 skill | 否（已实现，见 `xiaoya/hooks.py`） | 已完成 |
+| P1 做成 app | app 的 `on_startup` 钩子把模板放进 `panel-templates/`，`on_shutdown` 换成不带角色的兜底模板 `fallback.html`，从不删除（已发布的面板要靠它继续渲染）；app 带 skill | 否（已实现，见 `xiaoya/hooks.py`） | 已完成 |
 | P2 零 token 反应 | gateway 把 tool_call / approval / turn_done 映射成 state，用 postMessage 推进 iframe，不重载；bot 只负责 mood 和台词 | 是，中 | 1–2 周 |
 | P3 更细交互 | 点她、语音、TTS、口型 | 是，大 | 以后 |
 

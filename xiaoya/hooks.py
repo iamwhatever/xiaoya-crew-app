@@ -4,6 +4,11 @@ No core change: this uses the operator template directory the Crew webview
 already reads (``agent_panel.override_templates_dir()``). Agents cannot write
 there; this hook runs in the gateway process, which can.
 
+While the app runs, ``xiaoya.html`` is the full template. On shutdown it is
+swapped for ``fallback.html``: Kiro Crew's plain default view, so panels already
+published with template ``xiaoya`` keep rendering their data without a character
+the crew can no longer drive.
+
 Only a file carrying ``MARKER`` on its first line is treated as ours. An
 operator's own ``xiaoya.html`` is never overwritten or deleted.
 """
@@ -22,6 +27,10 @@ logger = logging.getLogger(__name__)
 TEMPLATE_ID = "xiaoya"
 MARKER = "<!-- installed-by-app: xiaoya -->"
 _SOURCE = Path(__file__).resolve().parent / "templates" / f"{TEMPLATE_ID}.html"
+_FALLBACK = _SOURCE.with_name("fallback.html")
+# Read at import: an uninstall deletes the app directory before the gateway runs
+# on_shutdown of the loaded module, and the fallback must still be writable then.
+_FALLBACK_BODY = _FALLBACK.read_text(encoding="utf-8")
 
 
 def _target() -> Path:
@@ -36,9 +45,10 @@ def _is_ours(path: Path) -> bool:
         return False
 
 
-def install() -> str:
-    """Write the template. Returns what happened, for logs and tests."""
-    body = _SOURCE.read_text(encoding="utf-8")
+def install(body: str | None = None) -> str:
+    """Write *body* (default: the full template). Returns what happened."""
+    if body is None:
+        body = _SOURCE.read_text(encoding="utf-8")
     if not body.startswith(MARKER):
         raise RuntimeError("bundled template is missing its ownership marker")
     dst = _target()
@@ -62,20 +72,17 @@ def on_startup(ctx: Any) -> None:
 
 
 def on_shutdown(ctx: Any) -> None:
-    """Leave the template in place.
+    """Swap in the fallback; never delete.
 
     Kiro Crew composes a panel from its stored template id on every drawer read
     (``agent_panel.render_record``). An id with no file raises ``unknown_template``
-    and the drawer gets a 503 ``panel_render_failed``. So deleting the file here
-    broke every panel a crew had already published with it.
+    and the drawer gets a 503 ``panel_render_failed``, so deleting the file would
+    break every panel a crew already published with it.
 
     This hook cannot tell a disable from a gateway stop or an uninstall: all three
     call it with the same ``AppContext``, and App Kit has no in-process uninstall
     hook (``setup.onUninstall`` is a sandboxed script; the sandbox seals that
-    directory read-only).
-    Keeping the file is right for all three: it is inert markup that only renders
-    data a crew chose to publish with it, and the next ``install()`` refreshes it.
+    directory read-only). The fallback is right for all three: it renders the
+    published data plainly, and the next ``on_startup`` swaps the full template back.
     """
-    dst = _target()
-    state = "kept" if dst.exists() and _is_ours(dst) else "not ours or absent"
-    logger.info("[xiaoya] template %s at %s", state, dst)
+    logger.info("[xiaoya] fallback %s", install(_FALLBACK_BODY))
