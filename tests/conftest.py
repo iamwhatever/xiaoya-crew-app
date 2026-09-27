@@ -1,13 +1,16 @@
 """Load xiaoya/hooks.py by file path, with stub kiro_crew modules when it is absent.
 
-xiaoya/ is not a package, and CI has no Kiro Crew checkout. The hooks tests only
-need ``override_templates_dir`` and ``atomic_write``; each test points the first
-at tmp_path, so nothing here ever touches ~/.kiro/crew.
+xiaoya/ is not a package. Set ``KIROCREW_SRC`` to a Kiro Crew ``src/`` directory
+(CI checks Kiro Crew main out) to run the compose and build tests against the
+real code; without it they skip. The hooks tests only need
+``override_templates_dir`` and ``atomic_write``; each test points the first at
+tmp_path, so nothing here ever touches ~/.kiro/crew.
 """
 
 from __future__ import annotations
 
 import importlib.util
+import os
 import sys
 import types
 from pathlib import Path
@@ -17,6 +20,14 @@ import pytest
 ROOT = Path(__file__).resolve().parent.parent
 HOOKS_PATH = ROOT / "xiaoya" / "hooks.py"
 TEMPLATE_PATH = ROOT / "xiaoya" / "templates" / "xiaoya.html"
+FALLBACK_PATH = ROOT / "xiaoya" / "templates" / "fallback.html"
+STAGE_SCRIPT = ROOT / "dev" / "stage.script.html"
+
+KIROCREW_SRC = Path(os.environ["KIROCREW_SRC"]).resolve() if os.environ.get("KIROCREW_SRC") else None
+if KIROCREW_SRC is not None:
+    if not (KIROCREW_SRC / "kiro_crew" / "agent_panel.py").is_file():
+        raise pytest.UsageError(f"KIROCREW_SRC={KIROCREW_SRC} has no kiro_crew/agent_panel.py")
+    sys.path.insert(0, str(KIROCREW_SRC))
 
 
 def _kiro_crew_available() -> bool:

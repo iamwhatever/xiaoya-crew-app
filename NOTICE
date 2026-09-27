@@ -1,1 +1,17 @@
-Xiaoya for Kiro Crew -- Copyright 2026 iamwhatever. Includes code from Kiro Crew (https://github.com/kirodotdev/KiroCrew), Copyright Amazon.com, Inc. or its affiliates, licensed under the Apache License 2.0.
+Xiaoya for Kiro Crew
+Copyright 2026 iamwhatever
+
+Licensed under the Apache License, Version 2.0; see LICENSE.
+
+This product includes software from Kiro Crew
+(https://github.com/kirodotdev/KiroCrew), licensed under the Apache License,
+Version 2.0. xiaoya/templates/xiaoya.html and xiaoya/templates/fallback.html
+are built from its panel template src/kiro_crew/agent_panel_templates/default.html.
+
+Kiro Crew's own NOTICE reads, in the part that applies here:
+
+  KiroCrew
+  Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+  This product includes software developed at
+  Amazon.com, Inc. (https://www.amazon.com/).
