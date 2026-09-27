@@ -1,13 +1,16 @@
-"""The bundled template: ownership marker, and composition through real kiro_crew."""
+"""The bundled templates: ownership marker, composition through real kiro_crew,
+and how the stage script treats data.xiaoya."""
 
 from __future__ import annotations
 
 import json
 import re
+import shutil
+import subprocess
 
 import pytest
 
-from conftest import KIRO_CREW_REAL, TEMPLATE_PATH, load_hooks
+from conftest import FALLBACK_PATH, KIRO_CREW_REAL, STAGE_SCRIPT, TEMPLATE_PATH, load_hooks
 
 HOSTILE = "<img src=x onerror=alert(1)>"
 DATA = {
@@ -16,10 +19,16 @@ DATA = {
 }
 
 
-def test_template_first_line_is_marker():
+@pytest.mark.parametrize("path", [TEMPLATE_PATH, FALLBACK_PATH], ids=["xiaoya", "fallback"])
+def test_template_first_line_is_marker(path):
     hooks = load_hooks()
-    first = TEMPLATE_PATH.read_text(encoding="utf-8").splitlines()[0]
-    assert first == hooks.MARKER
+    assert path.read_text(encoding="utf-8").splitlines()[0] == hooks.MARKER
+
+
+def test_fallback_is_the_plain_default_view():
+    body = FALLBACK_PATH.read_text(encoding="utf-8")
+    assert "k !== 'xiaoya'" not in body
+    assert "xy-stage" not in body
 
 
 def test_generic_walk_skips_the_xiaoya_key():
@@ -32,6 +41,10 @@ def test_generic_walk_skips_the_xiaoya_key():
 def test_line_is_set_as_text_not_markup():
     body = TEMPLATE_PATH.read_text(encoding="utf-8")
     assert "innerHTML" not in body
+    src = STAGE_SCRIPT.read_text(encoding="utf-8")
+    for sink in ("innerHTML", "outerHTML", "insertAdjacentHTML", "document.write"):
+        assert sink not in src, sink
+    assert "textContent" in src
 
 
 @pytest.fixture
@@ -74,11 +87,86 @@ def test_compose_with_real_kiro_crew(real_panel):
     assert html.count('type="application/json"') == 1
 
 
-def test_template_survives_on_shutdown(real_panel):
+def test_published_panel_still_renders_after_shutdown(real_panel):
     ap = real_panel
     hooks = load_hooks()
     hooks.on_startup(object())
     ap.publish("demo-crew", template="xiaoya", crew="demo-crew", data=DATA)
-    before = ap.render_record(ap.read("demo-crew"))
+    assert 'id="xy-stage"' in ap.render_record(ap.read("demo-crew"))
     hooks.on_shutdown(object())
-    assert ap.render_record(ap.read("demo-crew")) == before
+    html = ap.render_record(ap.read("demo-crew"))
+    assert 'id="xy-stage"' not in html
+    assert "\\u003cimg" in html
+
+
+# A tiny fake DOM: enough for stage.script.html to run under node.
+_HARNESS = r"""
+const fs = require('fs');
+const [script, dataJson] = [fs.readFileSync(0, 'utf8'), process.argv[1]];
+const nodes = {};
+function node(id) {
+  if (!nodes[id]) nodes[id] = {
+    id, style: {}, attrs: {}, className: '', textContent: '', hidden: true,
+    setAttribute(k, v) { this.attrs[k] = String(v); },
+    addEventListener() {},
+    classList: { toggle() { return true; } },
+  };
+  return nodes[id];
+}
+node('kirocrew-panel-data').textContent = dataJson;
+global.document = { getElementById: node };
+eval(script.replace(/^\s*<\/?script>\s*$/gm, ''));
+const out = {};
+for (const [id, n] of Object.entries(nodes)) out[id] = {
+  attrs: n.attrs, text: n.textContent, display: n.style.display, hidden: n.hidden };
+console.log(JSON.stringify(out));
+"""
+
+
+def _run_stage(data):
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("node is not installed")
+    proc = subprocess.run(
+        [node, "-e", _HARNESS, json.dumps(data)],
+        input=STAGE_SCRIPT.read_text(encoding="utf-8"),
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=True,
+    )
+    return json.loads(proc.stdout)
+
+
+def test_unknown_mood_and_state_fall_back_to_neutral_idle():
+    out = _run_stage({"xiaoya": {"state": "dancing", "mood": "<img>", "line": "hi"}})
+    stage = out["xy-stage"]["attrs"]
+    assert stage["data-state"] == "idle"
+    assert stage["data-mood"] == "neutral"
+    assert out["xy-stage"]["hidden"] is False
+
+
+def test_known_mood_and_state_are_kept():
+    out = _run_stage({"xiaoya": {"state": "error", "mood": "worried", "line": "red"}})
+    assert out["xy-stage"]["attrs"]["data-state"] == "error"
+    assert out["xy-stage"]["attrs"]["data-mood"] == "worried"
+
+
+def test_line_is_set_as_text_verbatim():
+    line = "<b onclick=x>bold</b>"
+    out = _run_stage({"xiaoya": {"line": line}})
+    assert out["xy-line"]["text"] == line
+
+
+def test_no_xiaoya_key_leaves_stage_hidden():
+    out = _run_stage({"other": 1})
+    assert out["xy-stage"]["hidden"] is True
+
+
+def test_stage_ids_exist_in_template():
+    # Every id the script looks up is present, so the fake DOM above matches the
+    # real one.
+    ids = set(re.findall(r"getElementById\('([\w-]+)'\)", STAGE_SCRIPT.read_text(encoding="utf-8")))
+    body = TEMPLATE_PATH.read_text(encoding="utf-8")
+    missing = {i for i in ids if f'id="{i}"' not in body} - {"kirocrew-panel-data"}
+    assert not missing

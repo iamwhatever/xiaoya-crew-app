@@ -4,6 +4,7 @@
   "displayName": "Xiaoya",
   "description": "Gives every crew a small companion in its Crew-page webview. While the crew works, Xiaoya shows what it is doing and how it feels about it: thinking, working, worried about a red check, proud when it is done.",
   "author": "iamwhatever",
+  "license": "Apache-2.0",
   "iconPath": "assets/icon.png",
   "tags": ["companion", "crew-webview"],
   "defaultEnabled": false,
