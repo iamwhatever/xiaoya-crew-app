@@ -15,12 +15,12 @@
   var MOODS = {
     neutral: { brow: 'normal',  eyes: 'open', mouth: 'smile', label: '平静' },
     happy:   { brow: 'normal',  eyes: 'arc',  mouth: 'open',  blush: 1, spark: 1, label: '开心' },
-    curious: { brow: 'up',      eyes: 'wide', mouth: 'o',     label: '好奇' },
+    curious: { brow: 'up',      eyes: 'open', mouth: 'o',     label: '好奇' },
     busy:    { brow: 'focus',   eyes: 'open', mouth: 'flat',  label: '专注' },
     sleepy:  { brow: 'normal',  eyes: 'line', mouth: 'tiny',  z: 1, label: '犯困' },
     scared:  { brow: 'up',      eyes: 'wide', mouth: 'o',     sweat: 1, label: '吓到' },
     worried: { brow: 'worried', eyes: 'open', mouth: 'wavy',  sweat: 1, label: '担心' },
-    proud:   { brow: 'normal',  eyes: 'arc',  mouth: 'smirk', blush: 1, spark: 1, label: '得意' }
+    proud:   { brow: 'up',      eyes: 'smug', mouth: 'smirk', blush: 1, spark: 1, label: '得意' }
   };
   // Mochi's behaviour states minus walking/offline.
   var STATES = { idle: '空闲', thinking: '思考中', working: '干活中', error: '出错了' };
@@ -37,7 +37,7 @@
     if (n) n.style.display = on ? '' : 'none';
   }
   ['normal', 'up', 'worried', 'focus'].forEach(function (b) { show('xy-brow-' + b, m.brow === b); });
-  ['open', 'wide', 'arc', 'line'].forEach(function (e) { show('xy-eyes-' + e, m.eyes === e); });
+  ['open', 'wide', 'arc', 'line', 'smug'].forEach(function (e) { show('xy-eyes-' + e, m.eyes === e); });
   ['smile', 'open', 'o', 'flat', 'wavy', 'smirk', 'tiny'].forEach(function (k) { show('xy-m-' + k, m.mouth === k); });
   show('xy-blush', !!m.blush);
   show('xy-spark', !!m.spark);
