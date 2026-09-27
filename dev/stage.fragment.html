@@ -1,6 +1,6 @@
 <style>
-  /* ── Xiaoya stage (P0 prototype) ───────────────────────────────────────
-     An original placeholder character, drawn inline as SVG because the panel
+  /* ── Xiaoya stage ─────────────────────────────────────────────────────
+     An original chibi character, drawn inline as SVG because the panel
      CSP allows only data:/blob: images. Every colour that touches the theme
      comes from the dashboard's variables; the character's own skin/hair
      palette is fixed on purpose so she looks the same in light and dark. */
@@ -54,89 +54,141 @@
     .xy *, .xy { animation: none !important; }
     .xy-pause { display: none; }
   }
+  /* chibi figure: 160x180 art box drawn at 150x168 */
+  .xy-fig { flex: 0 0 150px; height: 168px; }
+  .xy-fig svg { width: 150px; height: 168px; }
+  .xy-body { transform-origin: 80px 178px; }
+  .xy-head { transition: transform .4s ease; transform-origin: 80px 120px; transform-box: view-box; }
+  .xy-eyes-open { transform-origin: 80px 88px; }
+  .xy-gear { transform-origin: 80px 159px; }
+  .xy[data-mood="curious"] .xy-head { transform: rotate(-7deg); }
+  .xy[data-mood="sleepy"] .xy-head { transform: rotate(6deg) translateY(2px); }
+  .xy[data-mood="proud"] .xy-head { transform: translateY(-3px) rotate(-3deg); }
+  .xy[data-mood="scared"] .xy-head { transform: translateY(3px); }
+  .xy-tongue { display: none; }
+  .xy[data-mood="busy"] .xy-tongue { display: inline; }
 </style>
 
 <section class="xy" id="xy-stage" aria-label="Xiaoya" hidden>
   <div class="xy-fig" aria-hidden="true">
-    <svg viewBox="0 0 132 150" xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 160 180" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="xyA-iris" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#2a1726"/><stop offset=".55" stop-color="#1f7f78"/><stop offset="1" stop-color="#6fe0cf"/>
+        </linearGradient>
+        <linearGradient id="xyA-irislow" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#1f7f78"/><stop offset="1" stop-color="#6fe0cf"/>
+        </linearGradient>
+      </defs>
       <g class="xy-body">
-        <!-- back hair -->
-        <path d="M24 70 C18 30 46 12 66 12 C88 12 114 30 108 70 L112 128 C100 134 90 128 88 118 L44 118 C42 128 32 134 20 128 Z" fill="#2b2140"/>
-        <!-- shoulders / top -->
-        <path d="M30 150 C32 126 46 116 66 116 C86 116 100 126 102 150 Z" fill="#8e7cc3"/>
-        <path d="M56 116 L66 128 L76 116 Z" fill="#f3e9ff"/>
-        <!-- neck -->
-        <rect x="59" y="104" width="14" height="14" rx="5" fill="#f6d6c4"/>
-        <!-- face -->
-        <ellipse cx="66" cy="74" rx="34" ry="36" fill="#fbe3d4"/>
-        <!-- bangs -->
-        <path d="M31 66 C30 38 48 24 66 24 C86 24 103 38 101 66 C94 54 86 46 76 44 C78 52 74 58 70 60 C70 52 64 46 58 44 C54 54 44 60 31 66 Z" fill="#3a2d57"/>
-        <!-- side locks -->
-        <path d="M30 60 C26 80 28 98 34 110 C38 96 38 80 36 64 Z" fill="#3a2d57"/>
-        <path d="M102 60 C106 80 104 98 98 110 C94 96 94 80 96 64 Z" fill="#3a2d57"/>
-        <!-- hair clip -->
-        <path d="M88 40 l6 -6 l6 6 l-6 6 z" fill="#ffb86b"/>
+        <!-- back hair (bob) -->
+        <path d="M30 84 C24 40 52 22 80 22 C108 22 136 40 130 84 C132 104 128 118 120 124 C112 120 110 110 110 100 L50 100 C50 110 48 120 40 124 C32 118 28 104 30 84 Z" fill="#5e372c"/>
+        <!-- shoes -->
+        <ellipse cx="68" cy="173" rx="11" ry="6" fill="#3b2c3a"/><ellipse cx="92" cy="173" rx="11" ry="6" fill="#3b2c3a"/>
+        <!-- hoodie -->
+        <path d="M50 150 C44 144 42 136 50 130 L58 136 Z" fill="#2f9f92"/>
+        <path d="M110 150 C116 144 118 136 110 130 L102 136 Z" fill="#2f9f92"/>
+        <path d="M54 170 C52 148 58 128 80 126 C102 128 108 148 106 170 Z" fill="#3fbcad"/>
+        <path d="M58 131 Q80 144 102 131 Q98 124 80 124 Q62 124 58 131 Z" fill="#2a9083"/>
+        <rect x="66" y="152" width="28" height="12" rx="5" fill="#2f9f92"/>
+        <path d="M75 136 L73 148 M85 136 L87 148" stroke="#f4fbf9" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="73" cy="149" r="1.8" fill="#f4fbf9"/><circle cx="87" cy="149" r="1.8" fill="#f4fbf9"/>
+        <!-- hands -->
+        <g class="xy-hands"><circle cx="49" cy="150" r="6" fill="#ffe1cf"/><circle cx="111" cy="150" r="6" fill="#ffe1cf"/></g>
 
-        <!-- brows -->
-        <g id="xy-brow-normal" stroke="#3a2d57" stroke-width="2.4" stroke-linecap="round" fill="none">
-          <path d="M44 62 Q52 58 58 61"/><path d="M74 61 Q80 58 88 62"/></g>
-        <g id="xy-brow-up" stroke="#3a2d57" stroke-width="2.4" stroke-linecap="round" fill="none">
-          <path d="M44 58 Q52 52 58 56"/><path d="M74 56 Q80 52 88 58"/></g>
-        <g id="xy-brow-worried" stroke="#3a2d57" stroke-width="2.4" stroke-linecap="round" fill="none">
-          <path d="M44 60 Q52 60 58 56"/><path d="M74 56 Q80 60 88 60"/></g>
-        <g id="xy-brow-focus" stroke="#3a2d57" stroke-width="2.4" stroke-linecap="round" fill="none">
-          <path d="M44 59 L58 63"/><path d="M74 63 L88 59"/></g>
-
-        <!-- eyes -->
-        <g id="xy-eyes-open" class="xy-eyes-open">
-          <ellipse cx="51" cy="76" rx="6" ry="8" fill="#2b2140"/>
-          <ellipse cx="81" cy="76" rx="6" ry="8" fill="#2b2140"/>
-          <circle cx="53" cy="73" r="2.2" fill="#fff"/><circle cx="83" cy="73" r="2.2" fill="#fff"/>
-          <circle cx="49" cy="79" r="1.1" fill="#b9a6ff"/><circle cx="79" cy="79" r="1.1" fill="#b9a6ff"/>
+        <!-- working: a laptop in her hands -->
+        <g id="xy-p-working">
+          <rect x="62" y="149" width="36" height="20" rx="3" fill="#2d2b3a"/>
+          <rect x="64.5" y="151.5" width="31" height="15" rx="1.8" fill="#3c3a52"/>
+          <path d="M56 169 L104 169 L108 176 L52 176 Z" fill="#d8d3e6"/>
+          <path d="M56 169 L104 169" stroke="#8d86a3" stroke-width="1.4"/>
+          <g class="xy-gear">
+            <circle cx="80" cy="159" r="4.4" fill="none" stroke="#6fe0cf" stroke-width="2.6" stroke-dasharray="2.4 1.7"/>
+            <circle cx="80" cy="159" r="1.6" fill="#6fe0cf"/>
+          </g>
         </g>
-        <g id="xy-eyes-wide">
-          <circle cx="51" cy="76" r="8" fill="#fff" stroke="#2b2140" stroke-width="2"/>
-          <circle cx="81" cy="76" r="8" fill="#fff" stroke="#2b2140" stroke-width="2"/>
-          <circle cx="51" cy="77" r="3" fill="#2b2140"/><circle cx="81" cy="77" r="3" fill="#2b2140"/>
+
+        <g class="xy-head">
+          <!-- face -->
+          <ellipse cx="80" cy="82" rx="43" ry="39" fill="#ffe8da"/>
+          <!-- bangs -->
+          <path d="M36 78 C34 44 56 30 80 30 C106 30 126 44 124 78 C118 66 110 58 100 54 C100 60 96 63 90 64 C90 57 84 51 76 49 C72 58 62 63 50 64 C48 60 46 58 46 56 C42 62 38 70 36 78 Z" fill="#7a4a3b"/>
+          <path d="M36 70 C30 90 32 110 40 122 C44 108 44 92 42 74 Z" fill="#7a4a3b"/>
+          <path d="M124 70 C130 90 128 110 120 122 C116 108 116 92 118 74 Z" fill="#7a4a3b"/>
+          <path d="M80 31 C76 18 88 10 96 15 C88 16 84 22 85 31 Z" fill="#7a4a3b"/>
+          <path d="M52 44 Q64 36 76 38" stroke="#b07a62" stroke-width="3" stroke-linecap="round" fill="none" opacity=".75"/>
+          <!-- star clip -->
+          <path d="M50 40 l2.6 5.4 l5.9 .9 l-4.3 4.1 l1 5.9 l-5.2 -2.8 l-5.2 2.8 l1 -5.9 l-4.3 -4.1 l5.9 -.9 z" fill="#ffcc4d"/>
+
+          <!-- brows -->
+          <g id="xy-brow-normal" stroke="#3b1d15" stroke-width="3" stroke-linecap="round" fill="none">
+            <path d="M50 73 Q57 69 64 72"/><path d="M96 72 Q103 69 110 73"/></g>
+          <g id="xy-brow-up" stroke="#3b1d15" stroke-width="3" stroke-linecap="round" fill="none">
+            <path d="M50 69 Q57 63 64 67"/><path d="M96 67 Q103 63 110 69"/></g>
+          <g id="xy-brow-worried" stroke="#3b1d15" stroke-width="3" stroke-linecap="round" fill="none">
+            <path d="M50 71 Q57 72 64 66"/><path d="M96 66 Q103 72 110 71"/></g>
+          <g id="xy-brow-focus" stroke="#3b1d15" stroke-width="3" stroke-linecap="round" fill="none">
+            <path d="M50 70 L64 73.5"/><path d="M96 73.5 L110 70"/></g>
+
+          <!-- eyes -->
+          <g id="xy-eyes-open" class="xy-eyes-open">
+            <ellipse cx="60" cy="88" rx="9.5" ry="12" fill="url(#xyA-iris)"/>
+            <ellipse cx="100" cy="88" rx="9.5" ry="12" fill="url(#xyA-iris)"/>
+            <ellipse cx="60" cy="89" rx="4.6" ry="6" fill="#1b0f18"/><ellipse cx="100" cy="89" rx="4.6" ry="6" fill="#1b0f18"/>
+            <path d="M49 82 Q60 72 71 81 M89 81 Q100 72 111 82" stroke="#1b0f18" stroke-width="3.2" stroke-linecap="round" fill="none"/>
+            <circle cx="63.5" cy="83.5" r="3.4" fill="#fff"/><circle cx="103.5" cy="83.5" r="3.4" fill="#fff"/>
+            <circle cx="57" cy="93.5" r="1.6" fill="#fff"/><circle cx="97" cy="93.5" r="1.6" fill="#fff"/>
+          </g>
+          <g id="xy-eyes-wide">
+            <ellipse cx="60" cy="88" rx="10" ry="12" fill="#fff" stroke="#1b0f18" stroke-width="2.2"/>
+            <ellipse cx="100" cy="88" rx="10" ry="12" fill="#fff" stroke="#1b0f18" stroke-width="2.2"/>
+            <circle cx="60" cy="89" r="4.6" fill="url(#xyA-iris)"/><circle cx="100" cy="89" r="4.6" fill="url(#xyA-iris)"/>
+            <circle cx="61.5" cy="87" r="1.5" fill="#fff"/><circle cx="101.5" cy="87" r="1.5" fill="#fff"/>
+          </g>
+          <g id="xy-eyes-arc" stroke="#1b0f18" stroke-width="3.4" stroke-linecap="round" fill="none">
+            <path d="M50 91 Q60 78 70 91"/><path d="M90 91 Q100 78 110 91"/></g>
+          <g id="xy-eyes-line" stroke="#1b0f18" stroke-width="3.2" stroke-linecap="round" fill="none">
+            <path d="M51 89 Q60 95 69 89"/><path d="M91 89 Q100 95 109 89"/></g>
+
+          <g id="xy-eyes-smug">
+            <path d="M50 87 L70 87 Q70 99 60 99 Q50 99 50 87 Z M90 87 L110 87 Q110 99 100 99 Q90 99 90 87 Z" fill="url(#xyA-irislow)"/>
+            <path d="M48 87 L72 85 M88 85 L112 87" stroke="#1b0f18" stroke-width="3.4" stroke-linecap="round"/>
+            <circle cx="63" cy="91" r="2" fill="#fff"/><circle cx="103" cy="91" r="2" fill="#fff"/>
+          </g>
+
+          <!-- blush -->
+          <g id="xy-blush">
+            <ellipse cx="47" cy="102" rx="8" ry="4.6" fill="#ff8fa3" opacity=".55"/>
+            <ellipse cx="113" cy="102" rx="8" ry="4.6" fill="#ff8fa3" opacity=".55"/>
+            <path d="M43 104 l3 -4 M48 104 l3 -4 M109 104 l3 -4 M114 104 l3 -4" stroke="#f06d86" stroke-width="1.4" stroke-linecap="round"/>
+          </g>
+
+          <!-- mouths -->
+          <path id="xy-m-smile" d="M73 105 Q80 111 87 105" stroke="#b3485a" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+          <g id="xy-m-open"><path d="M71 103 Q80 117 89 103 Z" fill="#b3485a"/><ellipse cx="80" cy="110.5" rx="4.5" ry="2.4" fill="#ff8fa3"/></g>
+          <path class="xy-tongue" d="M81 107 L88 107 Q88.5 114 84.5 114 Q81 114 81 107 Z" fill="#ff7a93" stroke="#b3485a" stroke-width="1.6" stroke-linejoin="round"/>
+          <ellipse id="xy-m-o" cx="80" cy="107" rx="4" ry="5" fill="#b3485a"/>
+          <path id="xy-m-flat" d="M74 107 L86 107" stroke="#b3485a" stroke-width="2.6" stroke-linecap="round"/>
+          <path id="xy-m-wavy" d="M72 108 Q76 104 80 108 Q84 112 88 107" stroke="#b3485a" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+          <path id="xy-m-smirk" d="M73 106 Q82 110 88 101" stroke="#b3485a" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+          <path id="xy-m-tiny" d="M77 107 Q80 109 83 107" stroke="#b3485a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+
+          <!-- sweat / z / sparkle -->
+          <g id="xy-sweat"><path d="M129 58 C123 68 123 74 129 76 C135 74 135 68 129 58 Z" fill="#7fd0ff"/><circle cx="127" cy="70" r="1.6" fill="#fff"/></g>
+          <g id="xy-z" fill="#2a9083" stroke="#fff" stroke-width="1" paint-order="stroke" font-family="sans-serif" font-weight="800">
+            <text x="128" y="34" font-size="18">Z</text><text x="146" y="18" font-size="12">z</text></g>
+          <g id="xy-spark" fill="#ffcc4d">
+            <path d="M134 50 l2.4 7 l7 2.4 l-7 2.4 l-2.4 7 l-2.4 -7 l-7 -2.4 l7 -2.4 z"/>
+            <path d="M20 92 l1.5 4 l4 1.5 l-4 1.5 l-1.5 4 l-1.5 -4 l-4 -1.5 l4 -1.5 z"/></g>
         </g>
-        <g id="xy-eyes-arc" stroke="#2b2140" stroke-width="2.6" stroke-linecap="round" fill="none">
-          <path d="M44 78 Q51 70 58 78"/><path d="M74 78 Q81 70 88 78"/></g>
-        <g id="xy-eyes-line" stroke="#2b2140" stroke-width="2.6" stroke-linecap="round" fill="none">
-          <path d="M45 78 Q51 81 57 78"/><path d="M75 78 Q81 81 87 78"/></g>
-
-        <!-- blush -->
-        <g id="xy-blush" fill="#ff9aa8" opacity=".55">
-          <ellipse cx="42" cy="90" rx="6" ry="3.5"/><ellipse cx="90" cy="90" rx="6" ry="3.5"/></g>
-
-        <!-- mouths -->
-        <path id="xy-m-smile" d="M58 94 Q66 100 74 94" stroke="#a0525d" stroke-width="2.4" fill="none" stroke-linecap="round"/>
-        <path id="xy-m-open" d="M56 92 Q66 106 76 92 Z" fill="#a0525d"/>
-        <ellipse id="xy-m-o" cx="66" cy="96" rx="3.6" ry="4.4" fill="#a0525d"/>
-        <path id="xy-m-flat" d="M59 96 L73 96" stroke="#a0525d" stroke-width="2.4" stroke-linecap="round"/>
-        <path id="xy-m-wavy" d="M57 97 Q61 93 65 97 Q69 101 75 96" stroke="#a0525d" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-        <path id="xy-m-smirk" d="M59 95 Q68 99 75 91" stroke="#a0525d" stroke-width="2.4" fill="none" stroke-linecap="round"/>
-        <path id="xy-m-tiny" d="M63 96 Q66 98 69 96" stroke="#a0525d" stroke-width="2" fill="none" stroke-linecap="round"/>
-
-        <!-- sweat drop (worried / scared / error) -->
-        <path id="xy-sweat" d="M100 58 C96 66 96 70 100 72 C104 70 104 66 100 58 Z" fill="#7fc8ff"/>
-        <!-- sleepy z -->
-        <text id="xy-z" x="98" y="40" font-size="14" font-weight="700" fill="#b9a6ff" font-family="sans-serif">z</text>
-        <!-- sparkle (proud / happy) -->
-        <path id="xy-spark" d="M108 50 l2 6 l6 2 l-6 2 l-2 6 l-2 -6 l-6 -2 l6 -2 z" fill="#ffd36b"/>
       </g>
 
       <!-- state props, outside the breathing group so they stay steady -->
-      <g id="xy-p-thinking" class="xy-dots" fill="#b9a6ff">
-        <circle cx="104" cy="22" r="3.2"/><circle cx="113" cy="18" r="3.2"/><circle cx="122" cy="14" r="3.2"/></g>
-      <g id="xy-p-working">
-        <g class="xy-gear">
-          <circle cx="112" cy="118" r="9" fill="none" stroke="#8e48ff" stroke-width="4" stroke-dasharray="4 3"/>
-          <circle cx="112" cy="118" r="3.5" fill="#8e48ff"/>
-        </g>
-      </g>
+      <g id="xy-p-thinking" class="xy-dots" fill="#ffcc4d" stroke="#5e372c" stroke-width="1.6">
+        <circle cx="126" cy="22" r="3.4"/><circle cx="137" cy="15" r="4"/><circle cx="149" cy="8" r="4.6"/></g>
       <g id="xy-p-error">
-        <circle cx="114" cy="22" r="10" fill="#d9534f"/>
-        <text x="114" y="27" font-size="14" font-weight="800" fill="#fff" text-anchor="middle" font-family="sans-serif">!</text>
+        <circle cx="145" cy="22" r="11" fill="#e5534b"/>
+        <text x="145" y="28" font-size="16" font-weight="800" fill="#fff" text-anchor="middle" font-family="sans-serif">!</text>
       </g>
     </svg>
   </div>

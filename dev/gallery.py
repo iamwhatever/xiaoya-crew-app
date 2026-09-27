@@ -43,8 +43,8 @@ for theme, css in THEMES.items():
 page = (
     "<!doctype html><meta charset=utf-8><style>"
     "body{margin:0;padding:16px;background:#0e0e11;font:12px sans-serif;color:#aaa}"
-    ".g{display:grid;grid-template-columns:repeat(4,330px);gap:12px}"
-    "figure{margin:0}iframe{width:330px;height:200px;border:1px solid #333;border-radius:8px}"
+    ".g{display:grid;grid-template-columns:repeat(4,340px);gap:12px}"
+    "figure{margin:0}iframe{width:340px;height:226px;border:1px solid #333;border-radius:8px}"
     "figcaption{padding:4px 2px}</style><div class=g>" + "".join(cells) + "</div>"
 )
 (HERE / "out" / "gallery.html").write_text(page, encoding="utf-8")
