@@ -63,6 +63,8 @@ A crew calls `panel_publish`:
 
 ![All moods, dark and light](docs/gallery.png)
 
+Published panels are checked in the drawer, not by listing `~/.kiro/crew/crew-panels/`: from a sandboxed shell that folder is masked, so it looks empty.
+
 ## Development
 
 The template is rebuilt from Kiro Crew's own `default.html`, so you need a Kiro Crew checkout:

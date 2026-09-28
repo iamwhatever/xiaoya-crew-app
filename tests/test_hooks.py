@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.util
+import logging
 import shutil
 
 import pytest
@@ -118,3 +119,13 @@ def test_on_shutdown_keeps_operator_file(hooks):
 def test_on_shutdown_with_no_file_writes_fallback(hooks):
     hooks.on_shutdown(FakeCtx())
     assert _target(hooks).read_text(encoding="utf-8").splitlines()[0] == hooks.MARKER
+
+
+def test_result_lines_log_at_warning(hooks, caplog):
+    # The gateway log keeps only WARNING and up; an INFO result line is invisible.
+    caplog.set_level(logging.WARNING)
+    hooks.on_startup(FakeCtx())
+    hooks.on_shutdown(FakeCtx())
+    lines = [(r.levelno, r.getMessage()) for r in caplog.records]
+    assert (logging.WARNING, "[xiaoya] template installed") in lines
+    assert (logging.WARNING, "[xiaoya] fallback installed") in lines
