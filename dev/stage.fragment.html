@@ -67,6 +67,25 @@
   .xy[data-mood="scared"] .xy-head { transform: translateY(3px); }
   .xy-tongue { display: none; }
   .xy[data-mood="busy"] .xy-tongue { display: inline; }
+
+  /* Docked: the drawer card's compact frame (the dashboard prepends
+     <meta name="kirocrew-view" content="docked"> to that copy only). Xiaoya
+     alone, smaller, plus the first thing waiting on the operator; the generic
+     data view stays in the expanded dashboard. */
+  .xy-wait { font-size: 11px; color: var(--muted, #999); overflow: hidden;
+             text-overflow: ellipsis; white-space: nowrap; }
+  .xy-wait b { color: var(--text-strong, #fff); font-weight: 600; }
+  body.xy-docked { padding: 0; overflow: hidden; }
+  body.xy-docked .kp { display: none; }
+  body.xy-docked .xy { margin: 0; padding: 6px 10px; gap: 10px; border: 0;
+                       border-radius: 0; height: 100vh; box-sizing: border-box;
+                       align-items: center; }
+  body.xy-docked .xy-fig { flex: 0 0 110px; height: 124px; }
+  body.xy-docked .xy-fig svg { width: 110px; height: 124px; }
+  body.xy-docked .xy-side { gap: 6px; }
+  body.xy-docked .xy-bubble { font-size: 12px; padding: 6px 10px;
+                              display: -webkit-box; -webkit-line-clamp: 3;
+                              -webkit-box-orient: vertical; overflow: hidden; }
 </style>
 
 <section class="xy" id="xy-stage" aria-label="Xiaoya" hidden>
@@ -199,5 +218,6 @@
       <span class="xy-chip" id="xy-mood"></span>
       <button type="button" class="xy-pause" id="xy-pause" aria-pressed="false">暂停动画</button>
     </div>
+    <div class="xy-wait" id="xy-wait" hidden></div>
   </div>
 </section>
