@@ -64,7 +64,8 @@ def install(body: str | None = None) -> str:
 
 def on_startup(ctx: Any) -> None:
     result = install()
-    logger.info("[xiaoya] template %s", result)
+    # WARNING, not INFO: the gateway log keeps only WARNING and up.
+    logger.warning("[xiaoya] template %s", result)
     if result == "kept-operator-file":
         health = getattr(ctx, "health", None)
         if health is not None:
@@ -85,4 +86,4 @@ def on_shutdown(ctx: Any) -> None:
     directory read-only). The fallback is right for all three: it renders the
     published data plainly, and the next ``on_startup`` swaps the full template back.
     """
-    logger.info("[xiaoya] fallback %s", install(_FALLBACK_BODY))
+    logger.warning("[xiaoya] fallback %s", install(_FALLBACK_BODY))
