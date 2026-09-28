@@ -102,33 +102,51 @@ def test_published_panel_still_renders_after_shutdown(real_panel):
 # A tiny fake DOM: enough for stage.script.html to run under node.
 _HARNESS = r"""
 const fs = require('fs');
-const [script, dataJson] = [fs.readFileSync(0, 'utf8'), process.argv[1]];
+const [script, dataJson, view] = [fs.readFileSync(0, 'utf8'), process.argv[1], process.argv[2]];
 const nodes = {};
-function node(id) {
-  if (!nodes[id]) nodes[id] = {
-    id, style: {}, attrs: {}, className: '', textContent: '', hidden: true,
+function el(extra) {
+  const n = {
+    style: {}, attrs: {}, className: '', textContent: '', hidden: true, title: '', children: [],
     setAttribute(k, v) { this.attrs[k] = String(v); },
     addEventListener() {},
-    classList: { toggle() { return true; } },
+    appendChild(c) { this.children.push(c); this.textContent += c.textContent; return c; },
+    classes: [],
+    ...extra,
   };
+  n.classList = { toggle() { return true; }, add(c) { n.classes.push(c); } };
+  return n;
+}
+function node(id) {
+  if (!nodes[id]) nodes[id] = el({ id });
   return nodes[id];
 }
 node('kirocrew-panel-data').textContent = dataJson;
-global.document = { getElementById: node };
+const body = el({ id: 'body' });
+global.document = {
+  getElementById: node,
+  body,
+  // The dashboard prepends <meta name="kirocrew-view" content="docked"> to the
+  // docked copy only.
+  querySelector(sel) {
+    return view === 'docked' && sel === 'meta[name="kirocrew-view"][content="docked"]' ? {} : null;
+  },
+  createElement() { return el({}); },
+  createTextNode(t) { return { textContent: String(t) }; },
+};
 eval(script.replace(/^\s*<\/?script>\s*$/gm, ''));
-const out = {};
+const out = { body: { classes: body.classes } };
 for (const [id, n] of Object.entries(nodes)) out[id] = {
-  attrs: n.attrs, text: n.textContent, display: n.style.display, hidden: n.hidden };
+  attrs: n.attrs, text: n.textContent, display: n.style.display, hidden: n.hidden, title: n.title };
 console.log(JSON.stringify(out));
 """
 
 
-def _run_stage(data):
+def _run_stage(data, view="expanded"):
     node = shutil.which("node")
     if node is None:
         pytest.skip("node is not installed")
     proc = subprocess.run(
-        [node, "-e", _HARNESS, json.dumps(data)],
+        [node, "-e", _HARNESS, json.dumps(data), view],
         input=STAGE_SCRIPT.read_text(encoding="utf-8"),
         capture_output=True,
         text=True,
@@ -170,3 +188,43 @@ def test_stage_ids_exist_in_template():
     body = TEMPLATE_PATH.read_text(encoding="utf-8")
     missing = {i for i in ids if f'id="{i}"' not in body} - {"kirocrew-panel-data"}
     assert not missing
+
+
+def test_template_opts_into_the_docked_card():
+    # Line 2, right under the ownership marker: Kiro Crew reads the opt-in
+    # from the template's leading comments.
+    assert TEMPLATE_PATH.read_text(encoding="utf-8").splitlines()[1] == "<!--kirocrew:docked height=150-->"
+
+
+def test_fallback_does_not_opt_into_the_docked_card():
+    assert "kirocrew:docked" not in FALLBACK_PATH.read_text(encoding="utf-8")
+
+
+def test_real_kiro_crew_reads_the_docked_height(real_panel):
+    if not hasattr(real_panel, "docked_height"):
+        pytest.skip("this Kiro Crew has no docked card")
+    assert real_panel.docked_height(TEMPLATE_PATH.read_text(encoding="utf-8")) == 150
+
+
+def test_expanded_view_stays_full_and_hides_the_wait_line():
+    out = _run_stage({"xiaoya": {"state": "idle"}, "waiting_on_you": ["merge #1"]})
+    assert out["body"]["classes"] == []
+    assert out.get("xy-wait", {"hidden": True})["hidden"] is True
+
+
+def test_docked_view_goes_compact_and_shows_the_first_wait_as_text():
+    out = _run_stage(
+        {"xiaoya": {"state": "working"}, "waiting_on_you": [HOSTILE, "  ", "reply on Slack", 7]},
+        view="docked",
+    )
+    assert out["body"]["classes"] == ["xy-docked"]
+    wait = out["xy-wait"]
+    assert wait["hidden"] is False
+    assert wait["text"] == "等你：" + HOSTILE + "（另 1 项）"
+    assert wait["title"] == HOSTILE + "\nreply on Slack"
+
+
+def test_docked_view_without_waits_keeps_the_line_hidden():
+    out = _run_stage({"xiaoya": {"state": "idle"}, "waiting_on_you": "not a list"}, view="docked")
+    assert out["body"]["classes"] == ["xy-docked"]
+    assert out.get("xy-wait", {"hidden": True})["hidden"] is True

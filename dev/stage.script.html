@@ -68,6 +68,25 @@
     pause.textContent = still ? '继续动画' : '暂停动画';
   });
 
+  // Docked copy: compact layout, plus the first item waiting on the operator.
+  // Text only, like everything above.
+  if (document.querySelector('meta[name="kirocrew-view"][content="docked"]')) {
+    document.body.classList.add('xy-docked');
+    var waits = Array.isArray(data.waiting_on_you) ? data.waiting_on_you.filter(function (w) {
+      return typeof w === 'string' && w.trim();
+    }) : [];
+    if (waits.length) {
+      var wait = document.getElementById('xy-wait');
+      var head = document.createElement('b');
+      head.textContent = '等你：';
+      wait.appendChild(head);
+      wait.appendChild(document.createTextNode(
+        waits[0].trim() + (waits.length > 1 ? '（另 ' + (waits.length - 1) + ' 项）' : '')));
+      wait.title = waits.join('\n');
+      wait.hidden = false;
+    }
+  }
+
   stage.hidden = false;
 })();
 </script>

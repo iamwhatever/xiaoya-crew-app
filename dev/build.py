@@ -27,6 +27,7 @@ FILTER_NEW = "return k !== 'title' && k !== 'subtitle' && k !== 'xiaoya';"
 
 HEAD = (
     MARKER + "\n"
+    "<!--kirocrew:docked height=150-->\n"
     "<!--\n  Xiaoya panel template.\n\n"
     "  KiroCrew's generic default template (Apache-2.0) with a character stage\n"
     "  on top. The crew publishes data.xiaoya = {state, mood, line}; every other\n"
